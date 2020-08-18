@@ -19,4 +19,7 @@ public interface EduChapterService extends IService<EduChapter> {
     List<ChapterVo> getAllChapterVideo(String courseId);
 
     boolean deleteChapterById(String chapterId);
+
+    //2. 删除全部的章节根据课程id
+    void removeChapterByCourseId(String courseId);
 }

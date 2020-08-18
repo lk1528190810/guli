@@ -2,11 +2,14 @@ package com.atguigu.eduservice.controller;
 
 
 import com.atguigu.commonutils.R;
+import com.atguigu.eduservice.client.VodFeginClient;
 import com.atguigu.eduservice.entity.EduVideo;
 import com.atguigu.eduservice.service.EduVideoService;
+import com.atguigu.servicebase.exceptionhandler.GuliException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,6 +29,9 @@ public class EduVideoController {
     @Autowired
     private EduVideoService videoService;
 
+    @Autowired
+    private VodFeginClient vodFeginClient;
+
     //添加小节
     @ApiOperation(value = "添加小节的方法")
     @PostMapping("/addVideo")
@@ -35,10 +41,20 @@ public class EduVideoController {
     }
 
     //删除小节
-    //TODO 这个还需要完善 删除小节时视频也应该删除
     @ApiOperation(value = "删除小节的方法")
     @DeleteMapping("/deleteVideo/{videoId}")
     public R deleteVideo(@PathVariable String videoId){
+        //1.根据videoId可以获取到视频 id 先删除视频在删小节
+        EduVideo eduVideo = videoService.getById(videoId);
+        String videoSourceId = eduVideo.getVideoSourceId();
+        if(!StringUtils.isEmpty(videoSourceId)){
+            //删除视频
+            R result = vodFeginClient.deleteAliyunVideo(videoSourceId);
+            if(result.getCode() == 20001) {
+                throw new GuliException(20001,"删除视频出错了...熔断器");
+            }
+        }
+
         videoService.removeById(videoId);
         return R.ok();
     }

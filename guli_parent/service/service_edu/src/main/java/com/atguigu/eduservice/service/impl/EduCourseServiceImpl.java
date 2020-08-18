@@ -5,8 +5,10 @@ import com.atguigu.eduservice.entity.EduCourseDescription;
 import com.atguigu.eduservice.entity.vo.CourseInfoVo;
 import com.atguigu.eduservice.entity.vo.CoursePublishVo;
 import com.atguigu.eduservice.mapper.EduCourseMapper;
+import com.atguigu.eduservice.service.EduChapterService;
 import com.atguigu.eduservice.service.EduCourseDescriptionService;
 import com.atguigu.eduservice.service.EduCourseService;
+import com.atguigu.eduservice.service.EduVideoService;
 import com.atguigu.servicebase.exceptionhandler.GuliException;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +28,12 @@ public class EduCourseServiceImpl extends ServiceImpl<EduCourseMapper, EduCourse
 
     @Autowired
     private EduCourseDescriptionService descriptionService;
+
+    @Autowired
+    private EduChapterService chapterService;
+
+    @Autowired
+    private EduVideoService videoService;
 
     @Override
     public String addCourseInfo(CourseInfoVo courseInfoVo) {
@@ -72,6 +80,24 @@ public class EduCourseServiceImpl extends ServiceImpl<EduCourseMapper, EduCourse
     @Override
     public CoursePublishVo getCoursePublishVoById(String courseId) {
         return baseMapper.getCoursePublishVoById(courseId);
+    }
+
+    @Override
+    public void removeCourse(String courseId) {
+        //1. 删除全部的小节根据课程id
+        videoService.removeVideoByCourseId(courseId);
+
+        //2. 删除全部的章节根据课程id
+        chapterService.removeChapterByCourseId(courseId);
+
+        //3. 删除课程描述根据课程id
+        descriptionService.removeById(courseId);
+
+        //4. 删除课程
+        int result = baseMapper.deleteById(courseId);
+        if(result == 0 ){
+            throw new GuliException(20001,"删除课程失败");
+        }
     }
 
     @Override
