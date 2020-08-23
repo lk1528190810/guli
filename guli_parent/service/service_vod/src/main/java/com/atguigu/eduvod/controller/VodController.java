@@ -1,8 +1,8 @@
 package com.atguigu.eduvod.controller;
 
 import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.vod.model.v20170321.DeleteVideoRequest;
-import com.aliyuncs.vod.model.v20170321.DeleteVideoResponse;
+import com.aliyuncs.exceptions.ClientException;
+import com.aliyuncs.vod.model.v20170321.*;
 import com.atguigu.commonutils.R;
 import com.atguigu.eduvod.service.VodService;
 import com.atguigu.eduvod.utils.AliyunVodSDKUtils;
@@ -57,5 +57,21 @@ public class VodController {
     public R deleteAliyunVideoBatch(@RequestParam("videoList") List<String> videoList) {
         vodService.deleteAliyunVideoBatch(videoList);
         return R.ok();
+    }
+
+    //获取凭证的接口
+    @GetMapping("/getAuth/{vid}")
+    public R getAuth(@PathVariable String vid){
+        try {
+            DefaultAcsClient client = AliyunVodSDKUtils.initVodClient(ConstantVodUtils.ACCESS_KEY_ID, ConstantVodUtils.ACCESS_KEY_SECRET);
+            GetVideoPlayAuthRequest request = new GetVideoPlayAuthRequest();
+            request.setVideoId(vid);
+            GetVideoPlayAuthResponse response = client.getAcsResponse(request);
+            String playAuth = response.getPlayAuth();
+            return R.ok().data("playAuth",playAuth);
+        } catch (ClientException e) {
+            e.printStackTrace();
+            throw new GuliException(20001,"获取凭证失败");
+        }
     }
 }

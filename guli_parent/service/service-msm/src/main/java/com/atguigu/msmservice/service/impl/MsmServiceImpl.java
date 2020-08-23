@@ -33,6 +33,7 @@ public class MsmServiceImpl implements MsmService {
         request.putQueryParameter("PhoneNumbers", phoneNumbers);
         request.putQueryParameter("SignName", "学习谷粒学院的在线项目");
         request.putQueryParameter("TemplateCode", "SMS_199793340");
+        //将map装换成json数据
         request.putQueryParameter("TemplateParam", JSONObject.toJSONString(params));
 
         try {

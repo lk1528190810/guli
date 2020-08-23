@@ -18,6 +18,9 @@
         <module>service_cms</module>
         <module>service-msm</module>
         <module>service-ucenter</module>
+        <module>service_order</module>
+        <module>service_statistics</module>
+        <module>service_acl</module>
     </modules>
     <dependencies>
 

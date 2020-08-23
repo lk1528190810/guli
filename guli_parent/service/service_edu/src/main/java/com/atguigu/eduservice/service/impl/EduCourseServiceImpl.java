@@ -2,6 +2,8 @@ package com.atguigu.eduservice.service.impl;
 
 import com.atguigu.eduservice.entity.EduCourse;
 import com.atguigu.eduservice.entity.EduCourseDescription;
+import com.atguigu.eduservice.entity.frontvo.CourseFrontVo;
+import com.atguigu.eduservice.entity.frontvo.CourseWebVo;
 import com.atguigu.eduservice.entity.vo.CourseInfoVo;
 import com.atguigu.eduservice.entity.vo.CoursePublishVo;
 import com.atguigu.eduservice.mapper.EduCourseMapper;
@@ -10,10 +12,17 @@ import com.atguigu.eduservice.service.EduCourseDescriptionService;
 import com.atguigu.eduservice.service.EduCourseService;
 import com.atguigu.eduservice.service.EduVideoService;
 import com.atguigu.servicebase.exceptionhandler.GuliException;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -100,6 +109,7 @@ public class EduCourseServiceImpl extends ServiceImpl<EduCourseMapper, EduCourse
         }
     }
 
+
     @Override
     public void updateCourseInfo(CourseInfoVo courseInfoVo) {
         //将数据设置到eduCourse中
@@ -118,6 +128,66 @@ public class EduCourseServiceImpl extends ServiceImpl<EduCourseMapper, EduCourse
         description.setDescription(courseInfoVo.getDescription());
         //更新数据库
         descriptionService.updateById(description);
+    }
 
+    //这是获取前台课程列表信息带分页
+    @Override
+    public Map<String, Object> getCourseFrontList(Page<EduCourse> pageCourse, CourseFrontVo courseFrontVo) {
+        QueryWrapper<EduCourse> wrapper = new QueryWrapper<>();
+        String subjectParentId = courseFrontVo.getSubjectParentId();//一级分类
+        String subjectId = courseFrontVo.getSubjectId();//二级分类
+        String buyCountSort = courseFrontVo.getBuyCountSort();//购买量
+        String gmtCreateSort = courseFrontVo.getGmtCreateSort();//根据时间
+        String priceSort = courseFrontVo.getPriceSort();//价格
+
+        //根据查询条件拼接
+        if(!StringUtils.isEmpty(subjectParentId)) {//一级分类
+            wrapper.eq("subject_parent_id",subjectParentId);
+        }
+
+        if(!StringUtils.isEmpty(subjectId)) {//二级分类
+            wrapper.eq("subject_id",subjectId);
+        }
+
+        if(!StringUtils.isEmpty(buyCountSort)) {//根据购买量降序
+            wrapper.orderByDesc("buy_count");
+        }
+
+        if(!StringUtils.isEmpty(gmtCreateSort)) {//根据时间
+            wrapper.orderByDesc("gmt_create");
+        }
+
+        if(!StringUtils.isEmpty(priceSort)) {//根据价格
+            wrapper.orderByDesc("price");
+        }
+
+        baseMapper.selectPage(pageCourse,wrapper);
+
+        //将pageCourse中的值存到map中
+        List<EduCourse> records = pageCourse.getRecords();
+        long current = pageCourse.getCurrent();
+        long pages = pageCourse.getPages();
+        long size = pageCourse.getSize();
+        long total = pageCourse.getTotal();
+        boolean hasNext = pageCourse.hasNext();
+        boolean hasPrevious = pageCourse.hasPrevious();
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("items", records);
+        map.put("current", current);
+        map.put("pages", pages);
+        map.put("size", size);
+        map.put("total", total);
+        map.put("hasNext", hasNext);
+        map.put("hasPrevious", hasPrevious);
+
+        return map;
+    }
+
+    //根据courseId查询出课程的基本信息
+    @Override
+    public CourseWebVo getCourseBaseInfo(String courseId) {
+        CourseWebVo courseWebVo = baseMapper.getCourseBaseInfo(courseId);
+        return courseWebVo;
     }
 }

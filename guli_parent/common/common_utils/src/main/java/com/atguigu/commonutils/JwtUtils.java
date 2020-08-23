@@ -15,7 +15,13 @@ public class JwtUtils {
     //这是生成字符串的秘钥
     public static final String APP_SECRET = "ukc8BDbRigUDaY6pZFfWus2jZWLPHO";
 
-    public static String getJwtToken(String id, String nickname){
+    /**
+     *  使用jwt的规则生成token
+     * @param id
+     * @param nickname
+     * @return
+     */
+    public static String reverseJwtToken(String id, String nickname){
 
         String JwtToken = Jwts.builder()
                 //这是jwt头信息
@@ -72,7 +78,7 @@ public class JwtUtils {
     }
 
     /**
-     * 根据token获取会员id
+     * 根据token获取会员信息
      * @param request
      * @return
      */

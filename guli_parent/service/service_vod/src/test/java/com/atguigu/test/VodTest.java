@@ -68,7 +68,7 @@ public class VodTest {
         try {
 
             //设置请求参数
-            request.setVideoId("3c77871fb2c94adcb7bee790eaabb511");
+            request.setVideoId("8adf2a7325d14da08648641159595b04");
             //获取请求响应
             response = client.getAcsResponse(request);
 

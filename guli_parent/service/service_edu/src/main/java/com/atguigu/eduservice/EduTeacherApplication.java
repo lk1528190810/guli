@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.atguigu"})
-@CrossOrigin
 @EnableDiscoveryClient
 @EnableFeignClients
 public class EduTeacherApplication {
